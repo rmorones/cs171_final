@@ -8,6 +8,7 @@ package cs171_final;
 /**
  *
  * @author Ricardo Morones <rmorones@umail.ucsb.edu>
+ * @author Chris Kim <chriskim06@gmail.com>
  */
 public class Main {
 
