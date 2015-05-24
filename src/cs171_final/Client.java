@@ -22,7 +22,7 @@ import java.util.Random;
 public class Client extends Thread {
     
     private int leader = 0;
-    private int port;
+    private static final int PORT = 5352;
     // need to figure out format of config file that contains ip's
     private String[] ipList = new String[6];
     
@@ -57,10 +57,10 @@ public class Client extends Thread {
         }
         Socket site;
         try {
-            site = new Socket(ipList[leader], port);
+            site = new Socket(ipList[leader], PORT);
             ObjectOutputStream outputStream = new ObjectOutputStream(site.getOutputStream());
             // send client's public ip and port
-            outputStream.writeObject(content + " " + ipList[5] + " " + port);
+            outputStream.writeObject(content + " " + ipList[5] + " " + PORT);
             outputStream.flush();
             site.close();
         } catch (IOException e) {
@@ -75,7 +75,7 @@ public class Client extends Thread {
         ObjectInputStream inputStream;
         try {
             serverSocket = new ServerSocket();
-            serverSocket.bind(new InetSocketAddress(ipList[5], port));
+            serverSocket.bind(new InetSocketAddress(ipList[5], PORT));
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
             Map<Integer, String> response = (LinkedHashMap<Integer, String>) inputStream.readObject();
@@ -104,7 +104,6 @@ public class Client extends Thread {
             String line;
             int i = 0;
             while ((line = file.readLine()) != null) {
-                port = Integer.parseInt(line.substring(line.indexOf(" ") + 1));
                 ipList[i] = line.substring(0, line.indexOf(" "));
                 i++;
             }
