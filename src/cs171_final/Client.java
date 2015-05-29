@@ -60,7 +60,7 @@ public class Client extends Thread {
             site = new Socket(ipList[leader], PORT);
             ObjectOutputStream outputStream = new ObjectOutputStream(site.getOutputStream());
             // send client's public ip and port
-            outputStream.writeObject(content + " " + ipList[5] + " " + PORT);
+            outputStream.writeObject(new PaxosObj("request", content + " " + ipList[5] + " " + PORT));
             outputStream.flush();
             site.close();
         } catch (IOException e) {

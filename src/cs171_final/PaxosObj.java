@@ -69,4 +69,23 @@ public class PaxosObj {
     public Integer getSenderId() {
         return senderId;
     }
+    
+    public String[] getCommandLine() {
+        String[] parsed = new String[3];
+        int second;
+        int space = commandLine.indexOf(" ");
+        if (commandLine.startsWith("post")) {
+            int first = commandLine.indexOf(" ", space + 1);
+            second = commandLine.indexOf(" ", first + 1);
+            parsed[0] = commandLine.substring(0, first);
+            parsed[1] = commandLine.substring(first + 1, second);
+        } else {
+            second = commandLine.indexOf(" ", space + 1);
+            parsed[0] = commandLine.substring(0, space);
+            parsed[1] = commandLine.substring(space + 1, second);
+        }
+        parsed[2] = commandLine.substring(second + 1);
+        return parsed;
+    }
+    
 }
