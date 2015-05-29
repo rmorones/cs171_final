@@ -7,8 +7,8 @@ package cs171_final;
  */
 @SuppressWarnings("FieldMayBeFinal")
 public class Pair {
-    private Integer first;
-    private Integer second;
+    public Integer first;
+    public Integer second;
     
     public Pair() {
         this.first = null;

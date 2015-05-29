@@ -11,18 +11,18 @@ public class PaxosObj {
     private final Pair accept_num;
     private final String accept_val;
     private final Integer senderId;
-    private final boolean leader;
     private final String commandLine;
+    private final Integer round;
     
     
-    public PaxosObj(String command, Pair ballot_num, Pair accept_num, String msg, Integer senderId, boolean leader) {
+    public PaxosObj(String command, Pair ballot_num, Pair accept_num, String msg, Integer senderId, Integer round) {
         this.command = command;
         this.accept_num = accept_num;
         this.ballot_num = ballot_num;
         this.accept_val = msg;
         this.senderId = senderId;
-        this.leader = leader;
         this.commandLine = null;
+        this.round = round;
     }
 
     //Client thread constructor
@@ -33,21 +33,21 @@ public class PaxosObj {
         this.accept_num = null;
         this.accept_val = null;
         this.senderId = null;
-        this.leader = false;
+        this.round = null;
+    }
+
+    public PaxosObj(PaxosObj copy) {
+        this.command = copy.command;
+        this.ballot_num = copy.ballot_num;
+        this.accept_num = copy.accept_num;
+        this.accept_val = copy.accept_val;
+        this.senderId = copy.senderId;
+        this.commandLine = copy.commandLine;
+        this.round = copy.round;
     }
     
-    public PaxosObj() {
-        this.command = null;
-        this.ballot_num = null;
-        this.accept_num = null;
-        this.accept_val = null;
-        this.senderId = null;
-        this.leader = false;
-        this.commandLine = null;
-    }
-    
-    public boolean isLeader() {
-        return leader;
+    public Integer getRound() {
+        return round;
     }
 
     public String getCommand() {
