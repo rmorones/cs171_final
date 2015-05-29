@@ -25,6 +25,10 @@ public class CommunicationThread extends Thread {
         this.failed = false;
         this.missed = new LinkedList<>();
     }
+    
+    public void toggleMode() {
+        failed = !failed;
+    }
 
     @Override
     @SuppressWarnings("CallToPrintStackTrace")

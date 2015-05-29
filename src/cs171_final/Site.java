@@ -34,10 +34,10 @@ public class Site extends Thread {
             while ((line = input.readLine()) != null) {
                 if (line.equals("Fail") && mode) {
                     mode = !mode;
-                    //communicationThread.toggleMode();
+                    communicationThread.toggleMode();
                 } else if (line.equals("Restore") && !mode) {
                     mode = !mode;
-                    //communicationThread.toggleMode();
+                    communicationThread.toggleMode();
                 }
             }
         } catch (IOException e) {
