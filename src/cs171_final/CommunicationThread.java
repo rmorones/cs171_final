@@ -51,6 +51,7 @@ public class CommunicationThread extends Thread {
                 mysocket = serverSocket.accept();
                 in = new ObjectInputStream(mysocket.getInputStream());
                 PaxosObj input = (PaxosObj)in.readObject();
+                
                 if (input == null) {
                     System.out.println("object is null");
                     continue;
@@ -93,7 +94,7 @@ public class CommunicationThread extends Thread {
                         mysocket= new Socket(site.siteIPList[i], 5232);
                         ObjectOutputStream out;
                         out = new ObjectOutputStream(mysocket.getOutputStream());
-                        PaxosObj outObj = new PaxosObj("accept", new Pair(), new Pair(), null, site.siteId, false);
+                        PaxosObj outObj = new PaxosObj("accept", new Pair(), new Pair(), input.getAccept_val(), site.siteId, false);
                         out.writeObject(outObj);
                         out.flush();
                         out.close();
@@ -114,6 +115,9 @@ public class CommunicationThread extends Thread {
             case "decide": {
                 break;
             }
+            default:
+                System.out.println("Error, input.command not defined");
+                break;
         }
     }
     

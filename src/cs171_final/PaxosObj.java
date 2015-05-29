@@ -12,6 +12,7 @@ public class PaxosObj {
     private final String accept_val;
     private final Integer senderId;
     private final boolean leader;
+    private final String commandLine;
     
     
     public PaxosObj(String command, Pair ballot_num, Pair accept_num, String msg, Integer senderId, boolean leader) {
@@ -21,8 +22,20 @@ public class PaxosObj {
         this.accept_val = msg;
         this.senderId = senderId;
         this.leader = leader;
+        this.commandLine = null;
     }
 
+    //Client thread constructor
+    public PaxosObj(String command, String commandLine) {
+        this.command = command;
+        this.commandLine = commandLine;
+        this.ballot_num = null;
+        this.accept_num = null;
+        this.accept_val = null;
+        this.senderId = null;
+        this.leader = false;
+    }
+    
     public PaxosObj() {
         this.command = null;
         this.ballot_num = null;
@@ -30,6 +43,7 @@ public class PaxosObj {
         this.accept_val = null;
         this.senderId = null;
         this.leader = false;
+        this.commandLine = null;
     }
     
     public boolean isLeader() {

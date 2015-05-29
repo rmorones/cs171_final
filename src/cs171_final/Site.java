@@ -64,7 +64,7 @@ public class Site extends Thread {
         }
     }
     
-    private static void main(String[] args) {
+    public static void main(String[] args) {
         Site site = new Site();
         site.start();
         try {
