@@ -84,12 +84,12 @@ public class CommunicationThread extends Thread {
             case "request": {
                 //if leader then just send accepts, else, send prepare messages
                 if(input.isLeader()) {
-                    for(int i = 0; i < site.getServerPorts().length; ++i) {
+                    for(int i = 0; i < site.siteIPList.length; ++i) {
                         Socket mysocket;
-                        mysocket= new Socket("localhost" ,site.getServerPorts()[i]);
+                        mysocket= new Socket(site.siteIPList[i], 5232);
                         ObjectOutputStream out;
                         out = new ObjectOutputStream(mysocket.getOutputStream());
-                        PaxosObj outObj = new PaxosObj("accept", new Pair(), new Pair(), null, site.getSiteId(), false);
+                        PaxosObj outObj = new PaxosObj("accept", new Pair(), new Pair(), null, site.siteId, false);
                         out.writeObject(outObj);
                         out.flush();
                         out.close();

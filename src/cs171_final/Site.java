@@ -16,13 +16,13 @@ public class Site extends Thread {
     public static final int PORT = 5352;
     public String[] siteIPList = new String[6];//siteIPList[5] is private ip
     public int siteId = 100;
-    //private final CommunicationThread communicationThread;
+    private final CommunicationThread communicationThread;
     // true: normal mode, false: fail mode
     private boolean mode = false;
     
     public Site() {
         readConfig();
-        //communicationThread = new CommunicationThread(PORT, siteIPList[5], this);
+        communicationThread = new CommunicationThread(PORT, this);
     }
     
     @Override
