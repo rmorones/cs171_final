@@ -1,5 +1,7 @@
 package cs171_final;
 
+import java.util.Objects;
+
 /**
  *
  * @author Ricardo Morones <rmorones@umail.ucsb.edu>
@@ -18,5 +20,19 @@ public class Pair {
     public Pair(Integer first, Integer second) {
         this.first = first;
         this.second = second;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Pair b = (Pair)obj;
+        return this.first.compareTo(b.first) == 0 && this.second.compareTo(b.second) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.first);
+        hash = 59 * hash + Objects.hashCode(this.second);
+        return hash;
     }
 }
