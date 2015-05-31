@@ -24,9 +24,9 @@ public class Pair {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Pair))
+        if(!(obj instanceof Pair))
             return false;
-        if (obj == this)
+        if(obj == this)
             return true;
         
         Pair rhs = (Pair)obj;
