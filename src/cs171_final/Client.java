@@ -77,6 +77,7 @@ public class Client extends Thread {
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(ipList[5], PORT));
+            serverSocket.setSoTimeout(3000);
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
             Map<Integer, String> response = (HashMap<Integer, String>) inputStream.readObject();
@@ -92,6 +93,14 @@ public class Client extends Thread {
                 for (int i = 0; i < response.size(); i++) {
                     System.out.println(response.get(i));
                 }
+            }
+        } catch (java.net.SocketException e) {
+            System.out.println("Failure; retry posting message.");
+            // pick random site id as the leader for next request
+            Random random = new Random();
+            int temp = leader;
+            while (leader == temp) {
+                leader = random.nextInt(5);
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

@@ -197,9 +197,6 @@ public class CommunicationThread extends Thread {
                         if(ballotnum.equals(input.getBallot_num()))
                             aMajority.remove(ballotnum);
                     }
-//                    log.add(round, myAcceptVal);
-                    log.put(round, myAcceptVal);
-                    ++round;
                     decide();
                 }
                 
