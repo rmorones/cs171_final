@@ -6,13 +6,13 @@ package cs171_final;
  * @author Chris Kim <chriskim06@gmail.com>
  */
 public class PaxosObj {
-    private final String command;
-    private final Pair ballot_num;
-    private final Pair accept_num;
-    private final String accept_val;
-    private final Integer senderId;
-    private final String commandLine;
-    private final Integer round;
+    private String command;
+    private Pair ballot_num;
+    private Pair accept_num;
+    private String accept_val;
+    private Integer senderId;
+    private String commandLine;
+    private Integer round;
     
     
     public PaxosObj(String command, Pair ballot_num, Pair accept_num, String msg, Integer senderId, Integer round) {
@@ -44,6 +44,10 @@ public class PaxosObj {
         this.senderId = copy.senderId;
         this.commandLine = copy.commandLine;
         this.round = copy.round;
+    }
+    
+    public void setCommandLine(String cmd) {
+        this.commandLine = cmd;
     }
     
     public Integer getRound() {

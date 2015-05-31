@@ -7,7 +7,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -28,7 +30,8 @@ public class CommunicationThread extends Thread {
     private final ArrayList<PaxosObj> instances; //might be useful to have list of all instances
     private final ArrayList<PaxosObj> pMajority;
     private final ArrayList<Pair> aMajority;
-    private final ArrayList<String> log;
+//    private final ArrayList<String> log;
+    private final Map<Integer, String> log;
     
     public CommunicationThread(int port, Site site) {
         this.site = site;
@@ -42,12 +45,15 @@ public class CommunicationThread extends Thread {
         this.myAcceptNum = new Pair(0, 0);
         this.myBallotNum = new Pair(0, site.siteId);
         this.myAcceptVal = null;
-        this.log = new ArrayList<>();
+        this.log = new HashMap<>();
         this.instances = new ArrayList<>();
     }
     
     public void toggleMode() {
         failed = !failed;
+        if (failed) {
+            leader = false;
+        }
     }
 
     @Override
@@ -78,12 +84,19 @@ public class CommunicationThread extends Thread {
                 }
 
                 if(failed) {
-                    missed.add(input);
+                    if (input.getCommand().equals("decide")) {
+                        missed.add(input);
+                    }
                 } else {
                     //catch up then process the new command
                     while(!missed.isEmpty()) {
                         PaxosObj i = missed.poll();
-                        execute(i);
+                        String msg = i.getAccept_val();
+                        int tempround = i.getRound();
+                        if (!log.containsKey(tempround)) {
+                            log.put(tempround, msg);
+                        }
+//                        execute(i);
                     }
                     execute(input);
                 }
@@ -166,7 +179,6 @@ public class CommunicationThread extends Thread {
                         for(int i = 0; i < pMajority.size(); ++i)
                             pMajority.remove(i);
                         myAcceptNum = myBallotNum;
-                        leader = true;
                         //myAcceptNum = pMajority.get(0).getBallot_num();
                         accept(myAcceptVal);
                     }
@@ -193,7 +205,8 @@ public class CommunicationThread extends Thread {
                         if(ballotnum.equals(input.getBallot_num()))
                             aMajority.remove(ballotnum);
                     }
-                    log.add(round, myAcceptVal);
+//                    log.add(round, myAcceptVal);
+                    log.put(round, myAcceptVal);
                     ++round;
                     decide();
                 }
@@ -205,13 +218,19 @@ public class CommunicationThread extends Thread {
                 //accept value & increase round
                 myAcceptNum = input.getAccept_num();
                 myAcceptVal = input.getAccept_val();
+                if (myAcceptNum.second == site.siteId) {
+                    leader = true;
+                } else {
+                    leader = false;
+                }
                 //insert value into log for round i where i is the index
                 if(log.size() > 0) {
                     if(!log.get(input.getRound()).equals(myAcceptVal)) {
                         System.out.println("Error, different values choosen for index=" + input.getRound());
                     }
                 }
-                log.add(input.getRound(), myAcceptVal); //might have to preallocate some null slots for this to work all the time
+//                log.add(input.getRound(), myAcceptVal); //might have to preallocate some null slots for this to work all the time
+                log.put(input.getRound(), myAcceptVal);
                 if(input.getRound() == round) {
                     ++round;
                 }
