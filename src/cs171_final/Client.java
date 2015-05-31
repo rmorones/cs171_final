@@ -6,13 +6,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 /**
  *
@@ -24,8 +25,8 @@ public class Client extends Thread {
     
     private int leader = 0;
     private static final int PORT = 5352;
-    // need to figure out format of config file that contains ip's
-    private String[] ipList = new String[6];
+    private final String[] ipList = new String[5];
+    private String publicIP;
     
     public Client() {
         readConfig();
@@ -61,7 +62,7 @@ public class Client extends Thread {
             site = new Socket(ipList[leader], PORT);
             ObjectOutputStream outputStream = new ObjectOutputStream(site.getOutputStream());
             // send client's public ip and port
-            outputStream.writeObject(new PaxosObj("request", content + " " + ipList[5] + " " + PORT));
+            outputStream.writeObject(new PaxosObj("request", content + " " + publicIP + " " + PORT));
             outputStream.flush();
             site.close();
         } catch (IOException e) {
@@ -76,7 +77,7 @@ public class Client extends Thread {
         ObjectInputStream inputStream;
         try {
             serverSocket = new ServerSocket();
-            serverSocket.bind(new InetSocketAddress(ipList[5], PORT));
+            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT));
             serverSocket.setSoTimeout(3000);
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
@@ -94,6 +95,7 @@ public class Client extends Thread {
                     System.out.println(response.get(i));
                 }
             }
+            site.close();
         } catch (java.net.SocketException e) {
             System.out.println("Failure; retry posting message.");
             // pick random site id as the leader for next request
@@ -117,6 +119,9 @@ public class Client extends Thread {
                 ipList[i] = line.substring(0, line.indexOf(" "));
                 i++;
             }
+            URL whatismyip = new URL("http://checkip.amazonaws.com");
+            BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+            publicIP = in.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
