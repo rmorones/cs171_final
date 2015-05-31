@@ -110,14 +110,6 @@ public class CommunicationThread extends Thread {
     private void execute(PaxosObj input) throws IOException {
         
         switch (input.getCommand()) {
-            case "fail": {
-                failed = true;
-                break;
-            }
-            case "restore": {
-                failed = false;
-                break;
-            }
             case "request": {
                 //if leader then just send accepts, else, send prepare messages
                 //POST msg/READ ipAddr port

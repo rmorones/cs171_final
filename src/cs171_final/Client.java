@@ -9,9 +9,10 @@ import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
  *
@@ -78,18 +79,18 @@ public class Client extends Thread {
             serverSocket.bind(new InetSocketAddress(ipList[5], PORT));
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
-            Map<Integer, String> response = (LinkedHashMap<Integer, String>) inputStream.readObject();
-            for (Map.Entry<Integer, String> e : response.entrySet()) {
-                if (!e.getValue().equals("failure")) {// successful post or read
-                    System.out.println(e.getKey() + ": " + e.getValue());
-                } else {// failed post
-                    System.out.println("Failure; retry posting message.");
-                    // pick random site id as the leader for next request
-                    Random random = new Random();
-                    int temp = leader;
-                    while (leader == temp) {
-                        leader = random.nextInt(5);
+            Map<Integer, String> response = (HashMap<Integer, String>) inputStream.readObject();
+            if (response.size() == 1) {
+                for (Map.Entry<Integer, String> e : response.entrySet()) {
+                    if (e.getKey() < 0) {
+                        System.out.println("Failure");
+                    } else {
+                        System.out.println(e.getKey() + ": " + e.getValue());
                     }
+                }
+            } else {
+                for (int i = 0; i < response.size(); i++) {
+                    System.out.println(response.get(i));
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
