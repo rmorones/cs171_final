@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 /**
  *
  * @author Ricardo Morones <rmorones@umail.ucsb.edu>
- * @author Chris
+ * @author Chris Kim <chriskim06@gmail.com>
  */
 @SuppressWarnings("CallToPrintStackTrace")
 public class Site extends Thread {

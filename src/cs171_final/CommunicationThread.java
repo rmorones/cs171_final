@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -24,6 +25,7 @@ public class CommunicationThread extends Thread {
     private String myAcceptVal;
     private Pair myBallotNum;
     private Pair myAcceptNum;
+    private final ArrayList<PaxosObj> instances; //might be useful to have list of all instances
     private final ArrayList<PaxosObj> pMajority;
     private final ArrayList<Pair> aMajority;
     private final ArrayList<String> log;
@@ -41,8 +43,7 @@ public class CommunicationThread extends Thread {
         this.myBallotNum = new Pair(0, site.siteId);
         this.myAcceptVal = null;
         this.log = new ArrayList<>();
-//        if(site.siteId == 0)
-//            this.leader = true;
+        this.instances = new ArrayList<>();
     }
     
     public void toggleMode() {
@@ -104,37 +105,6 @@ public class CommunicationThread extends Thread {
                 failed = false;
                 break;
             }
-            case "ack prepare": {
-                if(round == input.getRound()) {
-                    pMajority.add(input);
-                    if(pMajority.size() == 2) {
-                        //send accept messages
-                        boolean set = false;
-                        for(PaxosObj p : pMajority) {
-                            if(p.getAccept_val() != null) {
-                                set = true;
-                            }
-                        }
-                        if(myAcceptVal != null) {
-                            set = true;
-                        }
-                        
-                        if(set) {
-                            if(compareBallot(pMajority.get(0).getBallot_num(), myBallotNum) && compareBallot(pMajority.get(0).getBallot_num(), pMajority.get(1).getBallot_num())) {
-                                myAcceptVal = pMajority.get(0).getAccept_val();
-                            } else if(compareBallot(pMajority.get(1).getBallot_num(), myBallotNum) && compareBallot(pMajority.get(1).getBallot_num(), pMajority.get(0).getBallot_num())) {
-                                myAcceptVal = pMajority.get(1).getAccept_val();
-                            }
-                         }
-                        //make list empty again
-                        for(int i = 0; i < pMajority.size(); ++i)
-                            pMajority.remove(i);
-                        myAcceptNum = myBallotNum;
-                        accept(myAcceptVal);
-                    }
-                }
-                break;
-            }
             case "request": {
                 //if leader then just send accepts, else, send prepare messages
                 //POST msg/READ ipAddr port
@@ -161,57 +131,113 @@ public class CommunicationThread extends Thread {
             case "prepare": {
                 //reply with ack
                 if(compareBallot(input.getBallot_num(), myBallotNum)) {
-                    send_ack_prepare(input);
+                    promise(input);
                 } else {
                     //do nothing?
+                }
+                break;
+            }
+            case "promise": {
+                if(round == input.getRound()) {
+                    pMajority.add(input);
+                    if(pMajority.size() == 2) {
+                        //send accept messages
+                        boolean set = false;
+                        for(PaxosObj p : pMajority) {
+                            if(p.getAccept_val() != null) {
+                                set = true;
+                            }
+                        }
+                        if(myAcceptVal != null) {
+                            set = true;
+                        }
+                        
+                        if(set) {
+                            if(compareBallot(pMajority.get(0).getAccept_num(), myAcceptNum) && compareBallot(pMajority.get(0).getAccept_num(), pMajority.get(1).getAccept_num())) {
+                                myAcceptVal = pMajority.get(0).getAccept_val();
+                            } else if(compareBallot(pMajority.get(1).getAccept_num(), myAcceptNum) && compareBallot(pMajority.get(1).getAccept_num(), pMajority.get(0).getAccept_num())) {
+                                myAcceptVal = pMajority.get(1).getAccept_val();
+                            }
+                         } else {
+                            // set myAcceptVal = initial_value; where initial value is the first proposed value
+                        }
+                        //make list empty again
+                        //a site can only prepare one value at a time
+                        for(int i = 0; i < pMajority.size(); ++i)
+                            pMajority.remove(i);
+                        myAcceptNum = myBallotNum;
+                        leader = true;
+                        //myAcceptNum = pMajority.get(0).getBallot_num();
+                        accept(myAcceptVal);
+                    }
                 }
                 break;
             }
             case "accept": {
                 //reply with ack
                 //have to do this only the first time
-                //after receiving two accepts(majority) then send decide
-                if(compareBallot(input.getBallot_num(), myBallotNum)) {
+                //after receiving two accepst(majority) then send decide
+                if(myAcceptNum.equals(input.getBallot_num())) {
+                    aMajority.add(input.getBallot_num());
+                    if(compareBallot(input.getBallot_num(), myBallotNum)) {
+                        myAcceptVal = input.getAccept_val();
+                    }
+                } else if(compareBallot(input.getBallot_num(), myBallotNum)) {
                     myAcceptNum = input.getBallot_num();
+                    aMajority.add(input.getBallot_num());
                     accept(input.getAccept_val());
                 }
+                
+                if(Collections.frequency(aMajority, input.getBallot_num()) == 2) {
+                    for(Pair ballotnum : aMajority) {
+                        if(ballotnum.equals(input.getBallot_num()))
+                            aMajority.remove(ballotnum);
+                    }
+                    log.add(round, myAcceptVal);
+                    ++round;
+                    decide();
+                }
+                
                 break;
             }
             case "decide": {
+                //not done yet
                 //accept value & increase round
                 myAcceptNum = input.getAccept_num();
                 myAcceptVal = input.getAccept_val();
                 //insert value into log for round i where i is the index
-                log.add(round, myAcceptVal); //might have to preallocate some null slots for this to work all the time
-                ++round;
+                if(log.size() > 0) {
+                    if(!log.get(input.getRound()).equals(myAcceptVal)) {
+                        System.out.println("Error, different values choosen for index=" + input.getRound());
+                    }
+                }
+                log.add(input.getRound(), myAcceptVal); //might have to preallocate some null slots for this to work all the time
+                if(input.getRound() == round) {
+                    ++round;
+                }
                 break;
             }
-            default:
+            default: {
                 System.out.println("Error, input.command not defined");
                 break;
+            }
         }
     }
     
     private void accept(String msg) throws IOException {
         myAcceptVal = msg;
-        if(!aMajority.contains(myAcceptNum)) {
-            aMajority.add(myAcceptNum);
-            for(int i = 0; i < site.siteIPList.length; ++i) {
-                if(site.siteId != i) { //don't send to yourself
-                    Socket mysocket;
-                    mysocket= new Socket(site.siteIPList[i], 5232);
-                    ObjectOutputStream out;
-                    out = new ObjectOutputStream(mysocket.getOutputStream());
-                    PaxosObj outObj = new PaxosObj("accept", myAcceptNum, null, myAcceptVal, site.siteId, round);
-                    out.writeObject(outObj);
-                    out.flush();
-                    out.close();
-                    mysocket.close();
-                }
+        for(int i = 0; i < site.siteIPList.length; ++i) {
+            if(site.siteId != i) { //don't send to yourself
+                Socket mysocket;
+                mysocket= new Socket(site.siteIPList[i], 5232);
+                ObjectOutputStream out;
+                out = new ObjectOutputStream(mysocket.getOutputStream());
+                PaxosObj outObj = new PaxosObj("accept", myAcceptNum, null, myAcceptVal, site.siteId, round);
+                out.writeObject(outObj);
+                out.flush();
+                out.close();
+                mysocket.close();
             }
-        } else { //there is already one in list and we just received the second one(majority reached)
-            aMajority.remove(myAcceptNum);
-            decide(myAcceptVal);
         }
     }
     
@@ -232,7 +258,7 @@ public class CommunicationThread extends Thread {
         }
     }
 
-    private void decide(String accept_val) throws IOException {
+    private void decide() throws IOException {
         for(int i = 0; i < site.siteIPList.length; ++i) {
             if(site.siteId != i) { //don't send to yourself
                 Socket mysocket;
@@ -248,13 +274,13 @@ public class CommunicationThread extends Thread {
         } 
     }
 
-    private void send_ack_prepare(PaxosObj input) throws IOException {
+    private void promise(PaxosObj input) throws IOException {
         myBallotNum = input.getBallot_num(); //not sure if this works, might have to overwrite the '=' operator
         Socket mysocket;
         mysocket= new Socket(site.siteIPList[input.getSenderId()], 5232);
         ObjectOutputStream out;
         out = new ObjectOutputStream(mysocket.getOutputStream());
-        PaxosObj outObj = new PaxosObj("ack prepare", myBallotNum, myAcceptNum, myAcceptVal, site.siteId, round);
+        PaxosObj outObj = new PaxosObj("promise", myBallotNum, myAcceptNum, myAcceptVal, site.siteId, round);
         out.writeObject(outObj);
         out.flush();
         out.close();
