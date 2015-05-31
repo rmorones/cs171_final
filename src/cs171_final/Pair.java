@@ -24,8 +24,13 @@ public class Pair {
 
     @Override
     public boolean equals(Object obj) {
-        Pair b = (Pair)obj;
-        return this.first.compareTo(b.first) == 0 && this.second.compareTo(b.second) == 0;
+        if (!(obj instanceof Pair))
+            return false;
+        if (obj == this)
+            return true;
+        
+        Pair rhs = (Pair)obj;
+        return this.first.compareTo(rhs.first) == 0 && this.second.compareTo(rhs.second) == 0;
     }
 
     @Override
