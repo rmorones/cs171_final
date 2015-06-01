@@ -30,8 +30,8 @@ public class CommunicationThread extends Thread {
     private final ArrayList<PaxosObj> instances; //might be useful to have list of all instances
     private final ArrayList<PaxosObj> pMajority;
     private final ArrayList<Pair> aMajority;
-//    private final ArrayList<String> log;
     private final Map<Integer, String> log;
+    private String[] proposedMessage = new String[3];
     
     public CommunicationThread(int port, Site site) {
         this.site = site;
@@ -111,23 +111,23 @@ public class CommunicationThread extends Thread {
             case "request": {
                 //if leader then just send accepts, else, send prepare messages
                 //POST msg/READ ipAddr port
-                String[] cmdline = input.getCommandLine();
-                String msg = cmdline[0];
+                proposedMessage = input.getCommandLine();
+                String msg = proposedMessage[0];
                 if(leader) {
-                    if(msg.startsWith("post")) {
+                    if(msg.startsWith("Post")) {
                         msg = msg.substring(msg.indexOf(" ") + 1);
                         ++myBallotNum.first;
                         myAcceptNum = myBallotNum;
                         accept(msg);
                     } else {
-                        read(cmdline[1], Integer.parseInt(cmdline[2]));
+                        read(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
                     }
                 } else {
-                    if(msg.startsWith("post")) {
+                    if(msg.startsWith("Post")) {
                         msg = msg.substring(msg.indexOf(" ") + 1);
                         prepare(msg);
                     } else {
-                        read(cmdline[1], Integer.parseInt(cmdline[2]));
+                        read(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
                     }
                 }
                 break;
@@ -160,18 +160,19 @@ public class CommunicationThread extends Thread {
                         }
                         
                         if(set) {
-                            if(compareBallot(pMajority.get(0).getAccept_num(), myAcceptNum) && compareBallot(pMajority.get(0).getAccept_num(), pMajority.get(1).getAccept_num())) {
-                                myAcceptVal = pMajority.get(0).getAccept_val();
-                            } else if(compareBallot(pMajority.get(1).getAccept_num(), myAcceptNum) && compareBallot(pMajority.get(1).getAccept_num(), pMajority.get(0).getAccept_num())) {
-                                myAcceptVal = pMajority.get(1).getAccept_val();
+                            if (compareBallot(pMajority.get(0).getAccept_num(), myAcceptNum) 
+                                    && compareBallot(pMajority.get(0).getAccept_num(), pMajority.get(1).getAccept_num())) {
+                                myAcceptVal = pMajority.get(0).getAcceptedValue();
+                            } else if (compareBallot(pMajority.get(1).getAccept_num(), myAcceptNum) 
+                                    && compareBallot(pMajority.get(1).getAccept_num(), pMajority.get(0).getAccept_num())) {
+                                myAcceptVal = pMajority.get(1).getAcceptedValue();
                             }
-                         } else {
-                            // set myAcceptVal = initial_value; where initial value is the first proposed value
+                        } else {
+                            myAcceptVal = proposedMessage[0] + " " + proposedMessage[1] + " " + proposedMessage[2];
                         }
                         //make list empty again
                         //a site can only prepare one value at a time
-                        for(int i = 0; i < pMajority.size(); ++i)
-                            pMajority.remove(i);
+                        pMajority.clear();
                         myAcceptNum = myBallotNum;
                         //myAcceptNum = pMajority.get(0).getBallot_num();
                         accept(myAcceptVal);
@@ -189,12 +190,12 @@ public class CommunicationThread extends Thread {
                 if(myAcceptNum.equals(input.getBallot_num())) {
                     aMajority.add(input.getBallot_num());
                     if(compareBallot(input.getBallot_num(), myBallotNum)) {
-                        myAcceptVal = input.getAccept_val();
+                        myAcceptVal = input.getAcceptedValue();
                     }
                 } else if(compareBallot(input.getBallot_num(), myBallotNum)) {
                     myAcceptNum = input.getBallot_num();
                     aMajority.add(input.getBallot_num());
-                    accept(input.getAccept_val());
+                    accept(input.getAcceptedValue());
                 }
                 
                 if(Collections.frequency(aMajority, input.getBallot_num()) == 2) {
@@ -210,8 +211,11 @@ public class CommunicationThread extends Thread {
             case "decide": {
                 //not done yet
                 //accept value & increase round
+                if (input.getRound() < round) {
+                    break;
+                }
                 myAcceptNum = input.getAccept_num();
-                myAcceptVal = input.getAccept_val();
+                myAcceptVal = input.getAcceptedValue();
                 if (myAcceptNum.second == site.siteId) {
                     leader = true;
                 } else {
@@ -223,10 +227,27 @@ public class CommunicationThread extends Thread {
                         System.out.println("Error, different values choosen for index=" + input.getRound());
                     }
                 }
-//                log.add(input.getRound(), myAcceptVal); //might have to preallocate some null slots for this to work all the time
                 log.put(input.getRound(), myAcceptVal);
                 if(input.getRound() == round) {
                     ++round;
+                }
+                String temp = input.getAcceptedValue();
+                temp = temp.substring(0, temp.lastIndexOf(" "));
+                temp = temp.substring(temp.lastIndexOf(" ") + 1);
+                if (proposedMessage[0] != null) {
+                    Socket socket = new Socket(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
+                    ObjectOutputStream out;
+                    out = new ObjectOutputStream(socket.getOutputStream());
+                    Map<Integer, String> success = new HashMap<>();
+                    if (temp.equals(proposedMessage[1])) {
+                        success.put(round, "Success");
+                    } else {
+                        success.put(-1, "Failed to do something");
+                    }
+                    out.writeObject(success);
+                    out.flush();
+                    out.close();
+                    socket.close();
                 }
                 break;
             }

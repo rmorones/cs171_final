@@ -85,14 +85,19 @@ public class Client extends Thread {
             if (response.size() == 1) {
                 for (Map.Entry<Integer, String> e : response.entrySet()) {
                     if (e.getKey() < 0) {
-                        System.out.println("Failure");
+                        System.out.println("Failed to do whatever");
+                        Random random = new Random();
+                        int temp = leader;
+                        while (leader == temp) {
+                            leader = random.nextInt(5);
+                        }
                     } else {
                         System.out.println(e.getKey() + ": " + e.getValue());
                     }
                 }
             } else {
                 for (int i = 0; i < response.size(); i++) {
-                    System.out.println(response.get(i));
+                    System.out.println(i + ": " + response.get(i));
                 }
             }
             site.close();

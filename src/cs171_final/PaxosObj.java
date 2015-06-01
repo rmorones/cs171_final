@@ -50,6 +50,10 @@ public class PaxosObj {
         this.commandLine = cmd;
     }
     
+    public String getAcceptedValue() {
+        return commandLine;
+    }
+    
     public Integer getRound() {
         return round;
     }
