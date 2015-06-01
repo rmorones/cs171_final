@@ -23,6 +23,7 @@ public class Site extends Thread {
     public Site() {
         readConfig();
         communicationThread = new CommunicationThread(PORT, this);
+        communicationThread.start();
     }
     
     @Override
