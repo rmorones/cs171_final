@@ -1,5 +1,6 @@
 package cs171_final;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Objects;
  * @author Chris Kim <chriskim06@gmail.com>
  */
 @SuppressWarnings("FieldMayBeFinal")
-public class Pair {
+public class Pair implements Serializable {
     public Integer first;
     public Integer second;
     

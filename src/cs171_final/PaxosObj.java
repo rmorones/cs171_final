@@ -1,11 +1,13 @@
 package cs171_final;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Ricardo Morones <rmorones@umail.ucsb.edu>
  * @author Chris Kim <chriskim06@gmail.com>
  */
-public class PaxosObj {
+public class PaxosObj implements Serializable {
     private String command;
     private Pair ballot_num;
     private Pair accept_num;

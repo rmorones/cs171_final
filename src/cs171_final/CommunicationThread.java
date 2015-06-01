@@ -115,17 +115,15 @@ public class CommunicationThread extends Thread {
                 String msg = proposedMessage[0];
                 if(leader) {
                     if(msg.startsWith("Post")) {
-                        msg = msg.substring(msg.indexOf(" ") + 1);
                         ++myBallotNum.first;
                         myAcceptNum = myBallotNum;
-                        accept(msg);
+                        accept(input.getAcceptedValue());
                     } else {
                         read(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
                     }
                 } else {
                     if(msg.startsWith("Post")) {
-                        msg = msg.substring(msg.indexOf(" ") + 1);
-                        prepare(msg);
+                        prepare(input.getAcceptedValue());
                     } else {
                         read(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
                     }
