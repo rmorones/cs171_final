@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 public class Site extends Thread {
     
     public static final int PORT = 5352;
-    public String[] siteIPList = new String[6];//siteIPList[5] is private ip
+    public String[] siteIPList = new String[5];
     public int siteId = 100;
     private final CommunicationThread communicationThread;
     // true: normal mode, false: fail mode
@@ -55,7 +55,7 @@ public class Site extends Thread {
                 if (siteId == 100) {
                     siteId = Integer.parseInt(line);
                 } else {
-                    siteIPList[i] = line.substring(0, line.indexOf(" "));
+                    siteIPList[i] = line;
                     i++;
                 }
             }

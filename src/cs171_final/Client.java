@@ -116,7 +116,7 @@ public class Client extends Thread {
             String line;
             int i = 0;
             while ((line = file.readLine()) != null) {
-                ipList[i] = line.substring(0, line.indexOf(" "));
+                ipList[i] = line;
                 i++;
             }
             URL whatismyip = new URL("http://checkip.amazonaws.com");
