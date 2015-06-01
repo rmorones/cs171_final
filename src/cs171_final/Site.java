@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map;
 
 /**
  *
@@ -39,6 +40,11 @@ public class Site extends Thread {
                 } else if (line.equals("Restore") && !mode) {
                     mode = !mode;
                     communicationThread.toggleMode();
+                } else if (line.equals("print")) {
+                    Map<Integer, String> temp = communicationThread.log;
+                    for (Map.Entry<Integer, String> e : temp.entrySet()) {
+                        System.out.println(e.getKey() + " " + e.getValue());
+                    }
                 }
             }
         } catch (IOException e) {

@@ -78,7 +78,7 @@ public class Client extends Thread {
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT));
-            serverSocket.setSoTimeout(3000);
+            serverSocket.setSoTimeout(10000);
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
             Map<Integer, String> response = (HashMap<Integer, String>) inputStream.readObject();

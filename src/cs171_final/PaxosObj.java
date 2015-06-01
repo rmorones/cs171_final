@@ -53,7 +53,7 @@ public class PaxosObj implements Serializable {
     }
     
     public String getAcceptedValue() {
-        return commandLine;
+        return accept_val;
     }
     
     public Integer getRound() {
@@ -84,7 +84,7 @@ public class PaxosObj implements Serializable {
         String[] parsed = new String[3];
         int second;
         int space = commandLine.indexOf(" ");
-        if (commandLine.startsWith("post")) {
+        if (commandLine.startsWith("Post")) {
             int first = commandLine.indexOf(" ", space + 1);
             second = commandLine.indexOf(" ", first + 1);
             parsed[0] = commandLine.substring(0, first);

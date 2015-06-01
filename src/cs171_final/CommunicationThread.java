@@ -30,7 +30,7 @@ public class CommunicationThread extends Thread {
     private final ArrayList<PaxosObj> instances; //might be useful to have list of all instances
     private final ArrayList<PaxosObj> pMajority;
     private final ArrayList<Pair> aMajority;
-    private final Map<Integer, String> log;
+    public final Map<Integer, String> log;
     private String[] proposedMessage = new String[3];
     
     public CommunicationThread(int port, Site site) {
@@ -55,7 +55,7 @@ public class CommunicationThread extends Thread {
             leader = false;
         }
     }
-
+    
     @Override
     @SuppressWarnings("CallToPrintStackTrace")
     public void run() {
