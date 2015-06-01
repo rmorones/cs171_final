@@ -237,7 +237,7 @@ public class CommunicationThread extends Thread {
         for(int i = 0; i < site.siteIPList.length; ++i) {
             if(site.siteId != i) { //don't send to yourself
                 Socket mysocket;
-                mysocket= new Socket(site.siteIPList[i], 5232);
+                mysocket= new Socket(site.siteIPList[i], port);
                 ObjectOutputStream out;
                 out = new ObjectOutputStream(mysocket.getOutputStream());
                 PaxosObj outObj = new PaxosObj("accept", myAcceptNum, null, myAcceptVal, site.siteId, round);
@@ -254,7 +254,7 @@ public class CommunicationThread extends Thread {
         for(int i = 0; i < site.siteIPList.length; ++i) {
             if(site.siteId != i) { //don't send to yourself
                 Socket mysocket;
-                mysocket= new Socket(site.siteIPList[i], 5232);
+                mysocket= new Socket(site.siteIPList[i], port);
                 ObjectOutputStream out;
                 out = new ObjectOutputStream(mysocket.getOutputStream());
                 PaxosObj outObj = new PaxosObj("prepare", myBallotNum, null, msg, site.siteId, round);
@@ -270,7 +270,7 @@ public class CommunicationThread extends Thread {
         for(int i = 0; i < site.siteIPList.length; ++i) {
             if(site.siteId != i) { //don't send to yourself
                 Socket mysocket;
-                mysocket= new Socket(site.siteIPList[i], 5232);
+                mysocket= new Socket(site.siteIPList[i], port);
                 ObjectOutputStream out;
                 out = new ObjectOutputStream(mysocket.getOutputStream());
                 PaxosObj outObj = new PaxosObj("decide", null, myAcceptNum, myAcceptVal, site.siteId, round);
@@ -285,7 +285,7 @@ public class CommunicationThread extends Thread {
     private void promise(PaxosObj input) throws IOException {
         myBallotNum = input.getBallot_num(); //not sure if this works, might have to overwrite the '=' operator
         Socket mysocket;
-        mysocket= new Socket(site.siteIPList[input.getSenderId()], 5232);
+        mysocket= new Socket(site.siteIPList[input.getSenderId()], port);
         ObjectOutputStream out;
         out = new ObjectOutputStream(mysocket.getOutputStream());
         PaxosObj outObj = new PaxosObj("promise", myBallotNum, myAcceptNum, myAcceptVal, site.siteId, round);
