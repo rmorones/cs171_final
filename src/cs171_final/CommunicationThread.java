@@ -193,6 +193,7 @@ public class CommunicationThread extends Thread {
                 } else if(compareBallot(input.getBallot_num(), myBallotNum)) {
                     myAcceptNum = input.getBallot_num();
                     aMajority.add(input.getBallot_num());
+                    myBallotNum = myAcceptNum;
                     accept(input.getAcceptedValue());
                 }
                 
@@ -214,11 +215,7 @@ public class CommunicationThread extends Thread {
                 }
                 myAcceptNum = input.getAccept_num();
                 myAcceptVal = input.getAcceptedValue();
-                if (myAcceptNum.second == site.siteId) {
-                    leader = true;
-                } else {
-                    leader = false;
-                }
+                leader = myAcceptNum.second == site.siteId;
                 //insert value into log for round i where i is the index
                 if(log.size() > 0) {
                     if(!log.get(input.getRound()).equals(myAcceptVal)) {
@@ -233,7 +230,8 @@ public class CommunicationThread extends Thread {
                 temp = temp.substring(0, temp.lastIndexOf(" "));
                 temp = temp.substring(temp.lastIndexOf(" ") + 1);
                 if (proposedMessage[0] != null) {
-                    Socket socket = new Socket(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
+                    Socket socket;
+                    socket = new Socket(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
                     ObjectOutputStream out;
                     out = new ObjectOutputStream(socket.getOutputStream());
                     Map<Integer, String> success = new HashMap<>();
