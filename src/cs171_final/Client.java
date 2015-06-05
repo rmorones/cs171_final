@@ -101,6 +101,7 @@ public class Client extends Thread {
                 }
             }
             site.close();
+            serverSocket.close();
         } catch (java.net.SocketException e) {
             System.out.println("Failure; retry posting message.");
             // pick random site id as the leader for next request
