@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -246,6 +247,9 @@ public class CommunicationThread extends Thread {
                     socket.close();
                 }
                 for (String[] p : requests) {
+                    if (p[1] == null) {
+                        break;
+                    }
                     Socket socket;
                     socket = new Socket(p[1], Integer.parseInt(p[2]));
                     ObjectOutputStream out;
@@ -257,6 +261,8 @@ public class CommunicationThread extends Thread {
                     out.close();
                     socket.close();
                 }
+                requests.clear();
+                Arrays.fill(proposedMessage, null);
                 ++round;
                 myBallotNum.first = 0;
                 myBallotNum.second = site.siteId;
