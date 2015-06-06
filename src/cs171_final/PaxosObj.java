@@ -1,6 +1,7 @@
 package cs171_final;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  *
@@ -15,6 +16,7 @@ public class PaxosObj implements Serializable {
     private Integer senderId;
     private String commandLine;
     private Integer round;
+    private Map<Integer, PaxosObj> log;
     
     
     public PaxosObj(String command, Pair ballot_num, Pair accept_num, String msg, Integer senderId, Integer round) {
@@ -48,6 +50,10 @@ public class PaxosObj implements Serializable {
         this.round = copy.round;
     }
     
+    public void setLog(Map<Integer, PaxosObj> log) {
+        this.log = log;
+    }
+    
     public void setCommandLine(String cmd) {
         this.commandLine = cmd;
     }
@@ -78,6 +84,10 @@ public class PaxosObj implements Serializable {
 
     public Integer getSenderId() {
         return senderId;
+    }
+    
+    public void setSenderId(int id) {
+        this.senderId = id;
     }
     
     public String[] getCommandLine() {

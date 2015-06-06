@@ -248,6 +248,21 @@ public class CommunicationThread extends Thread {
                 myAcceptVal = null;
                 break;
             }
+            case "update": {
+                Socket mysocket;
+                mysocket = new Socket(site.siteIPList[input.getSenderId()], port);
+                ObjectOutputStream out;
+                out = new ObjectOutputStream(mysocket.getOutputStream());
+                PaxosObj outObj = new PaxosObj("logUpdate", null);
+                outObj.setLog(log);
+                out.writeObject(outObj);
+                out.flush();
+                out.close();
+                mysocket.close();
+            }
+            case "Restore": {
+                updateLog();
+            }
             default: {
                 System.out.println("Error, input.command not defined");
                 break;
@@ -263,6 +278,7 @@ public class CommunicationThread extends Thread {
                 ObjectOutputStream out;
                 out = new ObjectOutputStream(mysocket.getOutputStream());
                 PaxosObj outObj = new PaxosObj("update", null);
+                outObj.setSenderId(site.siteId);
                 out.writeObject(outObj);
                 out.flush();
                 out.close();
