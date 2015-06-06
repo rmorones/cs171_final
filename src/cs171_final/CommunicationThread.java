@@ -255,6 +255,22 @@ public class CommunicationThread extends Thread {
         }
     }
     
+    private void updateLog() throws IOException {
+        for(int i = 0; i < site.siteIPList.length; ++i) {
+            if(site.siteId != i) { //don't send to yourself
+                Socket mysocket;
+                mysocket = new Socket(site.siteIPList[i], port);
+                ObjectOutputStream out;
+                out = new ObjectOutputStream(mysocket.getOutputStream());
+                PaxosObj outObj = new PaxosObj("update", null);
+                out.writeObject(outObj);
+                out.flush();
+                out.close();
+                mysocket.close();
+            }
+        }
+    }
+    
     private void read(String ip, int portNum) throws IOException {
         Socket mysocket;
         mysocket = new Socket(ip, portNum);
