@@ -52,7 +52,10 @@ public class Client extends Thread {
     }
     
     private void sendAndListen(String content) {
-        String command = content.substring(0, 4);
+        String command = content;
+        if (content.length() > 4) {
+            command = content.substring(0, 4);
+        }
         if (!command.equals("Read") && !command.equals("Post")) {
             System.out.println("Input error. Accepted commands: Read/Post");
             return;
