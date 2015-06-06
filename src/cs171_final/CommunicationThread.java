@@ -193,7 +193,7 @@ public class CommunicationThread extends Thread {
                 } else if(compareBallot(input.getBallot_num(), myBallotNum)) {
                     myAcceptNum = input.getBallot_num();
                     aMajority.add(input.getBallot_num());
-                    myBallotNum = myAcceptNum;
+                    myBallotNum.first = myAcceptNum.first;
                     accept(input.getAcceptedValue());
                 }
                 
@@ -236,7 +236,7 @@ public class CommunicationThread extends Thread {
                     out = new ObjectOutputStream(socket.getOutputStream());
                     Map<Integer, String> success = new HashMap<>();
                     if (temp.equals(proposedMessage[1])) {
-                        success.put(round, "Success");
+                        success.put(myBallotNum.first, "Success");
                     } else {
                         success.put(-1, "Failed to do something");
                     }
@@ -315,7 +315,7 @@ public class CommunicationThread extends Thread {
     }
 
     private void promise(PaxosObj input) throws IOException {
-        myBallotNum = input.getBallot_num(); //not sure if this works, might have to overwrite the '=' operator
+        myBallotNum.first = input.getBallot_num().first; //not sure if this works, might have to overwrite the '=' operator
         Socket mysocket;
         mysocket = new Socket(site.siteIPList[input.getSenderId()], port);
         ObjectOutputStream out;
