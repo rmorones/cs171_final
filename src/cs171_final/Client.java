@@ -52,7 +52,10 @@ public class Client extends Thread {
     }
     
     private void sendAndListen(String content) {
-        String command = content.substring(0, 4);
+        String command = content;
+        if(command.length() > 4) {
+            command = command.substring(0, 4);
+        }
         if (!command.equals("Read") && !command.equals("Post")) {
             System.out.println("Input error. Accepted commands: Read/Post");
             return;
@@ -78,12 +81,12 @@ public class Client extends Thread {
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT));
-            serverSocket.setSoTimeout(10000);
+            //serverSocket.setSoTimeout(20000);
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
-            Map<Integer, String> response = (HashMap<Integer, String>) inputStream.readObject();
+            Map<Integer, PaxosObj> response = (HashMap<Integer, PaxosObj>) inputStream.readObject();
             if (response.size() == 1) {
-                for (Map.Entry<Integer, String> e : response.entrySet()) {
+                for (Map.Entry<Integer, PaxosObj> e : response.entrySet()) {
                     if (e.getKey() < 0) {
                         System.out.println("Failed to do whatever");
                         Random random = new Random();
@@ -92,12 +95,12 @@ public class Client extends Thread {
                             leader = random.nextInt(5);
                         }
                     } else {
-                        System.out.println(e.getKey() + ": " + e.getValue());
+                        System.out.println(e.getKey() + ": " + e.getValue().getAcceptedValue());
                     }
                 }
             } else {
                 for (int i = 0; i < response.size(); i++) {
-                    System.out.println(i + ": " + response.get(i));
+                    System.out.println(i + ": " + response.get(i).getAcceptedValue());
                 }
             }
             site.close();

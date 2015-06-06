@@ -41,9 +41,9 @@ public class Site extends Thread {
                     mode = !mode;
                     communicationThread.toggleMode();
                 } else if (line.equals("print")) {
-                    Map<Integer, String> temp = communicationThread.log;
-                    for (Map.Entry<Integer, String> e : temp.entrySet()) {
-                        System.out.println(e.getKey() + " " + e.getValue());
+                    Map<Integer, PaxosObj> temp = communicationThread.log;
+                    for (Map.Entry<Integer, PaxosObj> e : temp.entrySet()) {
+                        System.out.println(e.getKey() + " " + e.getValue().getAcceptedValue());
                     }
                 }
             }

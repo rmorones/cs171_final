@@ -52,6 +52,10 @@ public class PaxosObj implements Serializable {
         this.commandLine = cmd;
     }
     
+    public String getCmdLine() {
+        return commandLine;
+    }
+    
     public String getAcceptedValue() {
         return accept_val;
     }
@@ -72,29 +76,23 @@ public class PaxosObj implements Serializable {
         return accept_num;
     }
 
-    public String getAccept_val() {
-        return accept_val;
-    }
-
     public Integer getSenderId() {
         return senderId;
     }
     
     public String[] getCommandLine() {
         String[] parsed = new String[3];
-        int second;
-        int space = commandLine.indexOf(" ");
-        if (commandLine.startsWith("Post")) {
-            int first = commandLine.indexOf(" ", space + 1);
-            second = commandLine.indexOf(" ", first + 1);
-            parsed[0] = commandLine.substring(0, first);
-            parsed[1] = commandLine.substring(first + 1, second);
-        } else {
-            second = commandLine.indexOf(" ", space + 1);
-            parsed[0] = commandLine.substring(0, space);
-            parsed[1] = commandLine.substring(space + 1, second);
-        }
-        parsed[2] = commandLine.substring(second + 1);
+        String dummy = commandLine;
+        int secondlast;
+        int lastspace = dummy.lastIndexOf(" ");
+        
+        parsed[2] = dummy.substring(lastspace + 1);
+        dummy = dummy.substring(0, lastspace);
+        secondlast = dummy.lastIndexOf(" ");
+        parsed[1] = dummy.substring(secondlast + 1);
+        dummy = dummy.substring(0, secondlast);
+        parsed[0] = dummy;
+        
         return parsed;
     }
     
