@@ -248,6 +248,14 @@ public class CommunicationThread extends Thread {
                 myAcceptVal = null;
                 break;
             }
+            case "logUpdate": {
+                Map<Integer, PaxosObj> received = input.getLog();
+                if(received.size() > log.size()) {
+                    log.putAll(received);
+                    round = log.size();
+                }
+                break;
+            }
             case "update": {
                 Socket mysocket;
                 mysocket = new Socket(site.siteIPList[input.getSenderId()], port);
@@ -259,9 +267,15 @@ public class CommunicationThread extends Thread {
                 out.flush();
                 out.close();
                 mysocket.close();
+                break;
             }
             case "Restore": {
+                myBallotNum.first = 0;
+                myBallotNum.second = site.siteId;
+                myAcceptNum.first = myAcceptNum.second = 0;
+                myAcceptVal = null;
                 updateLog();
+                break;
             }
             default: {
                 System.out.println("Error, input.command not defined");

@@ -50,6 +50,10 @@ public class PaxosObj implements Serializable {
         this.round = copy.round;
     }
     
+    public Map<Integer, PaxosObj> getLog() {
+        return log;
+    }
+    
     public void setLog(Map<Integer, PaxosObj> log) {
         this.log = log;
     }
