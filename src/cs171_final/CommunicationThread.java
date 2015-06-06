@@ -30,6 +30,7 @@ public class CommunicationThread extends Thread {
     private final ArrayList<PaxosObj> instances; //might be useful to have list of all instances
     private final ArrayList<PaxosObj> pMajority;
     private final ArrayList<Pair> aMajority;
+    private final ArrayList<String[]> requests = new ArrayList<>();
     public final Map<Integer, PaxosObj> log;
     private String[] proposedMessage = new String[3];
     
@@ -100,6 +101,9 @@ public class CommunicationThread extends Thread {
             case "request": {
                 //if leader then just send accepts, else, send prepare messages
                 //POST msg/READ ipAddr port
+                if (proposedMessage != null) {
+                    requests.add(proposedMessage);
+                }
                 proposedMessage = input.getCommandLine();
                 String msg = proposedMessage[0];
                 if(leader) {
@@ -236,6 +240,18 @@ public class CommunicationThread extends Thread {
                     } else {
                         success.put(-1, null);
                     }
+                    out.writeObject(success);
+                    out.flush();
+                    out.close();
+                    socket.close();
+                }
+                for (String[] p : requests) {
+                    Socket socket;
+                    socket = new Socket(p[1], Integer.parseInt(p[2]));
+                    ObjectOutputStream out;
+                    out = new ObjectOutputStream(socket.getOutputStream());
+                    Map<Integer, PaxosObj> success = new HashMap<>();
+                    success.put(-1, null);
                     out.writeObject(success);
                     out.flush();
                     out.close();
