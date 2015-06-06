@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Map;
 
 /**
@@ -40,6 +42,13 @@ public class Site extends Thread {
                 } else if (line.equals("Restore") && !mode) {
                     mode = !mode;
                     communicationThread.toggleMode();
+                    Socket siteThread;
+                    ObjectOutputStream out;
+                    siteThread = new Socket(siteIPList[siteId], PORT);
+                    out = new ObjectOutputStream(siteThread.getOutputStream());
+                    out.writeObject(new PaxosObj("Restore", null));
+                    out.flush();
+                    siteThread.close();
                 } else if (line.equals("print")) {
                     Map<Integer, PaxosObj> temp = communicationThread.log;
                     for (Map.Entry<Integer, PaxosObj> e : temp.entrySet()) {

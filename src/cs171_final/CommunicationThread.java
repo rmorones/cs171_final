@@ -120,7 +120,7 @@ public class CommunicationThread extends Thread {
                 break;
             }
             case "prepare": {
-                if (input.getRound() < round) {
+                if (input.getRound() < round || failed) {
                     break;
                 }
                 //reply with ack
@@ -132,7 +132,7 @@ public class CommunicationThread extends Thread {
                 break;
             }
             case "promise": {
-                if(round == input.getRound()) {
+                if(round == input.getRound() && !failed) {
                     pMajority.add(input);
                     if(pMajority.size() == 2) {
                         //send accept messages
@@ -168,7 +168,7 @@ public class CommunicationThread extends Thread {
                 break;
             }
             case "accept": {
-                if (input.getRound() < round) {
+                if (input.getRound() < round || failed) {
                     break;
                 }
                 //reply with ack
@@ -200,7 +200,7 @@ public class CommunicationThread extends Thread {
             case "decide": {
                 //not done yet
                 //accept value & increase round
-                if (input.getRound() != round) {
+                if (input.getRound() != round || failed) {
                     break;
                 } else if (log.containsKey(input.getRound())) {
                     break;
@@ -269,7 +269,7 @@ public class CommunicationThread extends Thread {
     private void accept(String msg) throws IOException {
         myAcceptVal = msg;
         for(int i = 0; i < site.siteIPList.length; ++i) {
-            if(site.siteId != i) { //don't send to yourself
+            if(site.siteId != i && !failed) { //don't send to yourself
                 Socket mysocket;
                 mysocket = new Socket(site.siteIPList[i], port);
                 ObjectOutputStream out;
@@ -286,7 +286,7 @@ public class CommunicationThread extends Thread {
     private void prepare(String msg) throws IOException {
         ++myBallotNum.first;
         for(int i = 0; i < site.siteIPList.length; ++i) {
-            if(site.siteId != i) { //don't send to yourself
+            if(site.siteId != i && !failed) { //don't send to yourself
                 Socket mysocket;
                 mysocket = new Socket(site.siteIPList[i], port);
                 ObjectOutputStream out;
@@ -302,7 +302,7 @@ public class CommunicationThread extends Thread {
 
     private void decide() throws IOException {
         for(int i = 0; i < site.siteIPList.length; ++i) {
-            if(site.siteId != i) { //don't send to yourself
+            if(site.siteId != i && !failed) { //don't send to yourself
                 Socket mysocket;
                 mysocket = new Socket(site.siteIPList[i], port);
                 ObjectOutputStream out;
