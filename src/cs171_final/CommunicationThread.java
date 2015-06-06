@@ -197,11 +197,19 @@ public class CommunicationThread extends Thread {
                     accept(input.getAcceptedValue());
                 }
                 
-                if(Collections.frequency(aMajority, input.getBallot_num()) == 2) {
+                int count = 0;
+                for(Pair ballot : aMajority) {
+                    if(ballot.first.equals(input.getBallot_num().first)) {
+                        ++count;
+                    }
+                }
+
+                if(count == 2) {
                     for(Pair ballotnum : aMajority) {
-                        if(ballotnum.equals(input.getBallot_num()))
+                        if(ballotnum.first.equals(input.getBallot_num().first))
                             aMajority.remove(ballotnum);
                     }
+                    System.out.println("Sending decides");
                     decide();
                 }
                 
