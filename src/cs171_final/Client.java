@@ -87,13 +87,15 @@ public class Client extends Thread {
             Map<Integer, PaxosObj> response = (HashMap<Integer, PaxosObj>) inputStream.readObject();
             if (response.size() == 1) {
                 for (Map.Entry<Integer, PaxosObj> e : response.entrySet()) {
-                    if (e.getKey() < 0) {
+                    if (e.getKey() == -1) {
                         System.out.println("Failed to do whatever");
                         Random random = new Random();
                         int temp = leader;
                         while (leader == temp) {
                             leader = random.nextInt(5);
                         }
+                    } else if(e.getKey() == -10) {
+                        System.out.println("Too many failures. Try again.");
                     } else {
                         System.out.println(e.getKey() + ": " + e.getValue().getAcceptedValue());
                     }

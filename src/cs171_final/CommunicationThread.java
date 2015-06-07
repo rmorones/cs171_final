@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -71,7 +73,7 @@ public class CommunicationThread extends Thread {
         while (true) {
             try {
                 // Wait for a client to connect (blocking)
-                serverSocket.setSoTimeout(3000);
+                serverSocket.setSoTimeout(10000);
                 mysocket = serverSocket.accept();
                 in = new ObjectInputStream(mysocket.getInputStream());
                 PaxosObj input = (PaxosObj)in.readObject();
@@ -85,8 +87,27 @@ public class CommunicationThread extends Thread {
                     continue;
                 }
                 execute(input);
-            } catch (java.net.SocketException e) {
-                System.out.println("Timeout");
+            } catch (java.net.SocketTimeoutException e) {
+                try {
+                    System.out.println("Timeout");
+                    myBallotNum.first = 0;
+                    myBallotNum.second = site.siteId;
+                    myAcceptNum.first = myAcceptNum.second = 0;
+                    myAcceptVal = null;
+                    Socket sos;
+                    sos = new Socket(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
+                    ObjectOutputStream out;
+                    out = new ObjectOutputStream(sos.getOutputStream());
+                    Map<Integer, PaxosObj> failure = new HashMap<>();
+                    failure.put(-10, null);
+                    out.writeObject(failure);
+                    out.flush();
+                    out.close();
+                    sos.close();
+                    proposedMessage = null;
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             } catch (IOException | ClassNotFoundException ex) {
                 ex.printStackTrace();
             }
