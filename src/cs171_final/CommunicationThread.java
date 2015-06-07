@@ -237,7 +237,7 @@ public class CommunicationThread extends Thread {
                 String tempPort = tempIP.substring(tempIP.lastIndexOf(" ") + 1);
                 tempIP = tempIP.substring(0, tempIP.lastIndexOf(" "));
                 tempIP = tempIP.substring(tempIP.lastIndexOf(" ") + 1);
-                if (proposedMessage[0] != null) {
+                if (proposedMessage != null) {
                     Socket socket;
                     System.out.println("Sending message to client with port");
                     socket = new Socket(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
