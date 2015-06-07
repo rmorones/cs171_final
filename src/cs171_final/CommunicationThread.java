@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -194,9 +195,12 @@ public class CommunicationThread extends Thread {
                 }
                 
                 if(Collections.frequency(aMajority, input.getBallot_num()) == 2) {
-                    for(Pair ballotnum : aMajority) {
-                        if(ballotnum.equals(input.getBallot_num()))
-                            aMajority.remove(ballotnum);
+                    ListIterator<Pair> li = aMajority.listIterator();
+                    while (li.hasNext()) {
+                        Pair p = li.next();
+                        if (p.equals(input.getBallot_num())) {
+                            li.remove();
+                        }
                     }
                     System.out.println("Sending decides");
                     decide();
