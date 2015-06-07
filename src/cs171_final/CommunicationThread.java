@@ -6,12 +6,9 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
 /**
  *
@@ -22,13 +19,11 @@ public class CommunicationThread extends Thread {
     private final int port;
     private final Site site;
     private boolean failed;
-    private final Queue<PaxosObj> missed;
     private boolean leader; //need to figure out where leader whould be changed
     private int round;
     private String myAcceptVal;
     private Pair myBallotNum;
     private Pair myAcceptNum;
-    private final ArrayList<PaxosObj> instances; //might be useful to have list of all instances
     private final ArrayList<PaxosObj> pMajority;
     private final ArrayList<Pair> aMajority;
     private final ArrayList<String[]> requests = new ArrayList<>();
@@ -39,7 +34,6 @@ public class CommunicationThread extends Thread {
         this.site = site;
         this.port = port;
         this.failed = false;
-        this.missed = new LinkedList<>();
         this.leader = false;
         this.round = 0;
         this.pMajority = new ArrayList<>();
@@ -48,7 +42,6 @@ public class CommunicationThread extends Thread {
         this.myBallotNum = new Pair(0, site.siteId);
         this.myAcceptVal = null;
         this.log = new HashMap<>();
-        this.instances = new ArrayList<>();
         this.proposedMessage = null;
     }
     

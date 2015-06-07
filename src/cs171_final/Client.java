@@ -75,13 +75,13 @@ public class Client extends Thread {
     }
     
     private void listen() {
-        ServerSocket serverSocket;
-        Socket site;
+        ServerSocket serverSocket = null;
+        Socket site = null;
         ObjectInputStream inputStream;
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT));
-            //serverSocket.setSoTimeout(20000);
+            serverSocket.setSoTimeout(10000);
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
             Map<Integer, PaxosObj> response = (HashMap<Integer, PaxosObj>) inputStream.readObject();
@@ -105,13 +105,18 @@ public class Client extends Thread {
             }
             site.close();
             serverSocket.close();
-        } catch (java.net.SocketException e) {
-            System.out.println("Failure; retry posting message.");
-            // pick random site id as the leader for next request
-            Random random = new Random();
-            int temp = leader;
-            while (leader == temp) {
-                leader = random.nextInt(5);
+        } catch (java.net.SocketTimeoutException e) {
+            try {
+                System.out.println("Failure; retry posting message.");
+                // pick random site id as the leader for next request
+                Random random = new Random();
+                int temp = leader;
+                while (leader == temp) {
+                    leader = random.nextInt(5);
+                }
+                serverSocket.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
