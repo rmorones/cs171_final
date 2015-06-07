@@ -91,12 +91,16 @@ public class CommunicationThread extends Thread {
                 }
                 execute(input);
             } catch (java.net.SocketTimeoutException e) {
+                System.out.println("Timeout");
+                myBallotNum.first = 0;
+                myBallotNum.second = site.siteId;
+                myAcceptNum.first = myAcceptNum.second = 0;
+                myAcceptVal = null;
+                inElection = false;
+                if (proposedMessage == null) {
+                    continue;
+                }
                 try {
-                    System.out.println("Timeout");
-                    myBallotNum.first = 0;
-                    myBallotNum.second = site.siteId;
-                    myAcceptNum.first = myAcceptNum.second = 0;
-                    myAcceptVal = null;
                     Socket sos;
                     sos = new Socket(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
                     ObjectOutputStream out;
