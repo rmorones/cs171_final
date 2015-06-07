@@ -250,6 +250,9 @@ public class CommunicationThread extends Thread {
                 inElection = false;
                 myAcceptNum = input.getAccept_num();
                 myAcceptVal = input.getAcceptedValue();
+                myAcceptVal = myAcceptVal.substring(0, myAcceptVal.lastIndexOf(" ")); //get rid of PORT
+                myAcceptVal = myAcceptVal.substring(0, myAcceptVal.lastIndexOf(" ")); //get rid of IP
+                myAcceptVal = myAcceptVal.substring(5);
                 leader = myAcceptNum.second == site.siteId;
                 if(leader) {
                     System.out.println("Im the leader");
