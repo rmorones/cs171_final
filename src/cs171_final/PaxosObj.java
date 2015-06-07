@@ -50,6 +50,9 @@ public class PaxosObj implements Serializable {
         this.round = copy.round;
     }
     
+    public void setAcceptedValue(String message) {
+        this.accept_val = message;
+    }
     public Map<Integer, PaxosObj> getLog() {
         return log;
     }

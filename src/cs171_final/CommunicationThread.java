@@ -80,7 +80,7 @@ public class CommunicationThread extends Thread {
                 mysocket = serverSocket.accept();
                 in = new ObjectInputStream(mysocket.getInputStream());
                 PaxosObj input = (PaxosObj)in.readObject();
-                System.out.println("connection established with " + mysocket.getInetAddress().toString());
+//                System.out.println("connection established with " + mysocket.getInetAddress().toString());
                 if (input == null) {
                     System.out.println("object is null");
                     continue;
@@ -122,19 +122,15 @@ public class CommunicationThread extends Thread {
     }
     
     private void execute(PaxosObj input) throws IOException {
-        System.out.println("command "+ input.getCommand());
+//        System.out.println("command "+ input.getCommand());
         switch (input.getCommand()) {
             case "request": {
                 //if leader then just send accepts, else, send prepare messages
                 //POST msg/READ ipAddr port
                 if (proposedMessage != null) {
                     requests.add(proposedMessage);
-                    System.out.println("proposed: " + proposedMessage[0]);
                 }
                 proposedMessage = input.getCommandLine();
-                 if(requests.size() > 0) {
- 			System.out.println("propsed = " + requests.get(0)[0]);
- 		}
                 String msg = proposedMessage[0];
                 if(leader) {
                     if(msg.startsWith("Post")) {
@@ -200,7 +196,6 @@ public class CommunicationThread extends Thread {
                         //a site can only prepare one value at a time
                         pMajority.clear();
                         myAcceptNum = myBallotNum;
-                        //myAcceptNum = pMajority.get(0).getBallot_num();
                         accept(myAcceptVal);
                     }
                 }
@@ -257,7 +252,7 @@ public class CommunicationThread extends Thread {
                 if(leader) {
                     System.out.println("Im the leader");
                 } else {
-                    System.out.println("Im the not leader");
+                    System.out.println("Im not the leader");
                 }
                 //insert value into log for round i where i is the index
                 if(log.size() > 0 && log.get(input.getRound()) != null) {
@@ -265,15 +260,17 @@ public class CommunicationThread extends Thread {
                         System.out.println("Error, different values choosen for index=" + input.getRound());
                     }
                 }
-                System.out.println("adding " + input.getAcceptedValue() + " to index " + input.getRound().toString());
-                log.put(input.getRound(), new PaxosObj(input));
+                System.out.println("Adding " + input.getAcceptedValue() + " with index " + input.getRound().toString());
+                PaxosObj entry = new PaxosObj(input);
+                entry.setAcceptedValue(myAcceptVal);
+                log.put(input.getRound(), entry);
                 String tempIP = input.getAcceptedValue();
                 String tempPort = tempIP.substring(tempIP.lastIndexOf(" ") + 1);
                 tempIP = tempIP.substring(0, tempIP.lastIndexOf(" "));
                 tempIP = tempIP.substring(tempIP.lastIndexOf(" ") + 1);
                 if (proposedMessage != null) {
                     Socket socket;
-                    System.out.println("Sending message to client with port");
+//                    System.out.println("Sending message to client with port");
                     socket = new Socket(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
                     ObjectOutputStream out;
                     out = new ObjectOutputStream(socket.getOutputStream());
