@@ -14,6 +14,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,9 +26,11 @@ import java.util.Random;
 public class Client extends Thread {
     
     private int leader = 0;
-    private static final int PORT = 5352;
+    private static final int SITE_PORT = 5352;
+    private static int port;
     private final String[] ipList = new String[5];
     private String publicIP;
+    private ServerSocket serverSocket = null;
     
     public Client() {
         readConfig();
@@ -62,10 +66,12 @@ public class Client extends Thread {
         }
         Socket site;
         try {
-            site = new Socket(ipList[leader], PORT);
+            serverSocket = new ServerSocket(0);
+            port = serverSocket.getLocalPort();
+            site = new Socket(ipList[leader], SITE_PORT);
             ObjectOutputStream outputStream = new ObjectOutputStream(site.getOutputStream());
             // send client's public ip and port
-            outputStream.writeObject(new PaxosObj("request", content + " " + publicIP + " " + PORT));
+            outputStream.writeObject(new PaxosObj("request", content + " " + publicIP + " " + port));
             outputStream.flush();
             site.close();
         } catch (IOException e) {
@@ -75,12 +81,10 @@ public class Client extends Thread {
     }
     
     private void listen() {
-        ServerSocket serverSocket = null;
         Socket site = null;
-        ObjectInputStream inputStream;
         try {
-            serverSocket = new ServerSocket();
-            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), PORT));
+            ObjectInputStream inputStream;
+            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), port));
             serverSocket.setSoTimeout(10000);
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
@@ -88,14 +92,14 @@ public class Client extends Thread {
             if (response.size() == 1) {
                 for (Map.Entry<Integer, PaxosObj> e : response.entrySet()) {
                     if (e.getKey() == -1) {
-                        System.out.println("Failed to do whatever");
+                        System.out.println("Failed to handle request. Site was not able to become the leader.");
                         Random random = new Random();
                         int temp = leader;
                         while (leader == temp) {
                             leader = random.nextInt(5);
                         }
                     } else if(e.getKey() == -10) {
-                        System.out.println("Too many failures. Try again.");
+                        System.out.println("Too many failures. Try again when a majority of sites can be reached.");
                     } else {
                         System.out.println(e.getKey() + ": " + e.getValue().getAcceptedValue());
                     }
@@ -105,23 +109,23 @@ public class Client extends Thread {
                     System.out.println(i + ": " + response.get(i).getAcceptedValue());
                 }
             }
-            site.close();
-            serverSocket.close();
         } catch (java.net.SocketTimeoutException e) {
+            System.out.println("Failure: site took too long to respond. Retry posting message.");
+            // pick random site id as the leader for next request
+            Random random = new Random();
+            int temp = leader;
+            while (leader == temp) {
+                leader = random.nextInt(5);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
             try {
-                System.out.println("Failure; retry posting message.");
-                // pick random site id as the leader for next request
-                Random random = new Random();
-                int temp = leader;
-                while (leader == temp) {
-                    leader = random.nextInt(5);
-                }
+                site.close();
                 serverSocket.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
         }
     }
     
