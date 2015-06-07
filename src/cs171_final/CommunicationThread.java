@@ -70,6 +70,7 @@ public class CommunicationThread extends Thread {
         while (true) {
             try {
                 // Wait for a client to connect (blocking)
+                serverSocket.setSoTimeout(3000);
                 mysocket = serverSocket.accept();
                 in = new ObjectInputStream(mysocket.getInputStream());
                 PaxosObj input = (PaxosObj)in.readObject();
@@ -83,8 +84,9 @@ public class CommunicationThread extends Thread {
                     continue;
                 }
                 execute(input);
-            }
-            catch (IOException | ClassNotFoundException ex) {
+            } catch (java.net.SocketException e) {
+                System.out.println("Timeout");
+            } catch (IOException | ClassNotFoundException ex) {
                 ex.printStackTrace();
             }
         }
@@ -195,7 +197,7 @@ public class CommunicationThread extends Thread {
                     for(Pair ballotnum : aMajority) {
                         if(ballotnum.equals(input.getBallot_num()))
                             aMajority.remove(ballotnum);
-                     }
+                    }
                     System.out.println("Sending decides");
                     decide();
                 }

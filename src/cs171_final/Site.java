@@ -20,8 +20,6 @@ public class Site extends Thread {
     public String[] siteIPList = new String[5];
     public int siteId = 100;
     private final CommunicationThread communicationThread;
-    // true: normal mode, false: fail mode
-    private boolean mode = false;
     
     public Site() {
         readConfig();
@@ -36,11 +34,9 @@ public class Site extends Thread {
             input = new BufferedReader(new InputStreamReader(System.in));
             String line;
             while ((line = input.readLine()) != null) {
-                if (line.equals("Fail") && mode) {
-                    mode = !mode;
+                if (line.equals("Fail")) {
                     communicationThread.toggleMode();
-                } else if (line.equals("Restore") && !mode) {
-                    mode = !mode;
+                } else if (line.equals("Restore")) {
                     communicationThread.toggleMode();
                     Socket siteThread;
                     ObjectOutputStream out;
