@@ -48,6 +48,7 @@ public class CommunicationThread extends Thread {
         this.myAcceptVal = null;
         this.log = new HashMap<>();
         this.instances = new ArrayList<>();
+        this.proposedMessage = null;
     }
     
     public void toggleMode() {
@@ -103,8 +104,12 @@ public class CommunicationThread extends Thread {
                 //POST msg/READ ipAddr port
                 if (proposedMessage != null) {
                     requests.add(proposedMessage);
+                    System.out.println("proposed: " + proposedMessage[0]);
                 }
                 proposedMessage = input.getCommandLine();
+                 if(requests.size() > 0) {
+ 			System.out.println("propsed = " + requests.get(0)[0]);
+ 		}
                 String msg = proposedMessage[0];
                 if(leader) {
                     if(msg.startsWith("Post")) {
@@ -113,12 +118,14 @@ public class CommunicationThread extends Thread {
                         accept(proposedMessage[0] + " " + proposedMessage[1] + " " + proposedMessage[2]);
                     } else {
                         read(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
+                        proposedMessage = null;
                     }
                 } else {
                     if(msg.startsWith("Post")) {
                         prepare(input.getAcceptedValue());
                     } else {
                         read(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
+                        proposedMessage = null;
                     }
                 }
                 break;
@@ -246,6 +253,9 @@ public class CommunicationThread extends Thread {
                     socket.close();
                 }
                 for (String[] p : requests) {
+                    if (p[1] == null) {
+                         break;
+                     }
                     Socket socket;
                     socket = new Socket(p[1], Integer.parseInt(p[2]));
                     ObjectOutputStream out;
@@ -257,6 +267,8 @@ public class CommunicationThread extends Thread {
                     out.close();
                     socket.close();
                 }
+                requests.clear();
+ 		proposedMessage = null;
                 ++round;
                 myBallotNum.first = 0;
                 myBallotNum.second = site.siteId;
