@@ -233,17 +233,18 @@ public class CommunicationThread extends Thread {
                 }
                 System.out.println("adding " + input.getAcceptedValue() + " to index " + input.getRound().toString());
                 log.put(input.getRound(), new PaxosObj(input));
-                String temp = input.getAcceptedValue();
-                temp = temp.substring(0, temp.lastIndexOf(" "));
-                temp = temp.substring(temp.lastIndexOf(" ") + 1);
+                String tempIP = input.getAcceptedValue();
+                String tempPort = tempIP.substring(tempIP.lastIndexOf(" ") + 1);
+                tempIP = tempIP.substring(0, tempIP.lastIndexOf(" "));
+                tempIP = tempIP.substring(tempIP.lastIndexOf(" ") + 1);
                 if (proposedMessage[0] != null) {
                     Socket socket;
-                    System.out.println("Sending message to client");
+                    System.out.println("Sending message to client with port");
                     socket = new Socket(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
                     ObjectOutputStream out;
                     out = new ObjectOutputStream(socket.getOutputStream());
                     Map<Integer, PaxosObj> success = new HashMap<>();
-                    if (temp.equals(proposedMessage[1])) {
+                    if (tempIP.equals(proposedMessage[1]) && tempPort.equals(proposedMessage[2])) {
                         success.put(round, new PaxosObj(null, null, null, "Success!", null, null));
                     } else {
                         success.put(-1, null);
