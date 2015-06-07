@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -32,6 +30,7 @@ public class CommunicationThread extends Thread {
     private final ArrayList<String[]> requests = new ArrayList<>();
     public final Map<Integer, PaxosObj> log;
     private String[] proposedMessage = new String[3];
+    private boolean inElection = false;
     
     public CommunicationThread(int port, Site site) {
         this.site = site;
@@ -73,7 +72,11 @@ public class CommunicationThread extends Thread {
         while (true) {
             try {
                 // Wait for a client to connect (blocking)
-                serverSocket.setSoTimeout(10000);
+                if (inElection) {
+                    serverSocket.setSoTimeout(5000);
+                } else {
+                    serverSocket.setSoTimeout(0);
+                }
                 mysocket = serverSocket.accept();
                 in = new ObjectInputStream(mysocket.getInputStream());
                 PaxosObj input = (PaxosObj)in.readObject();
@@ -131,6 +134,7 @@ public class CommunicationThread extends Thread {
                 String msg = proposedMessage[0];
                 if(leader) {
                     if(msg.startsWith("Post")) {
+                        inElection = true;
                         ++myBallotNum.first;
                         myAcceptNum = myBallotNum;
                         accept(proposedMessage[0] + " " + proposedMessage[1] + " " + proposedMessage[2]);
@@ -140,6 +144,7 @@ public class CommunicationThread extends Thread {
                     }
                 } else {
                     if(msg.startsWith("Post")) {
+                        inElection = true;
                         prepare(input.getAcceptedValue());
                     } else {
                         read(proposedMessage[1], Integer.parseInt(proposedMessage[2]));
@@ -149,6 +154,7 @@ public class CommunicationThread extends Thread {
                 break;
             }
             case "prepare": {
+                inElection = true;
                 if (input.getRound() < round || failed) {
                     break;
                 }
@@ -237,6 +243,7 @@ public class CommunicationThread extends Thread {
                 } else if (log.containsKey(input.getRound())) {
                     break;
                 }
+                inElection = false;
                 myAcceptNum = input.getAccept_num();
                 myAcceptVal = input.getAcceptedValue();
                 leader = myAcceptNum.second == site.siteId;
