@@ -152,7 +152,7 @@ public class Client extends Thread {
             return;
         } else {
             try {
-                this.port = Integer.parseInt(args[0]);
+                port = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 return;
