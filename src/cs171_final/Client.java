@@ -64,8 +64,9 @@ public class Client extends Thread {
         }
         Socket site;
         try {
-            serverSocket = new ServerSocket(0);
-            port = serverSocket.getLocalPort();
+//            serverSocket = new ServerSocket(0);
+            serverSocket = new ServerSocket();
+//            port = serverSocket.getLocalPort();
             site = new Socket(ipList[leader], SITE_PORT);
             ObjectOutputStream outputStream = new ObjectOutputStream(site.getOutputStream());
             // send client's public ip and port
@@ -146,6 +147,17 @@ public class Client extends Thread {
     }
     
     public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java Client [PORT]");
+            return;
+        } else {
+            try {
+                this.port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
         Client client = new Client();
         client.start();
         try {
