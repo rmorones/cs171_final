@@ -161,9 +161,8 @@ public class CommunicationThread extends Thread {
                 //reply with ack
                 if(compareBallot(input.getBallot_num(), myBallotNum)) {
                     promise(input);
-                } else {
-                    //do nothing?
                 }
+                System.out.println("Prepare received");
                 break;
             }
             case "promise": {
@@ -197,6 +196,7 @@ public class CommunicationThread extends Thread {
                         pMajority.clear();
                         myAcceptNum = myBallotNum;
                         accept(myAcceptVal);
+                        System.out.println("Majority of acks received");
                     }
                 }
                 break;
@@ -315,6 +315,7 @@ public class CommunicationThread extends Thread {
                 if(received.size() > log.size()) {
                     log.putAll(received);
                     round = log.size();
+                    System.out.println("Received updated log...updating");
                 }
                 break;
             }

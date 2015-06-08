@@ -64,9 +64,9 @@ public class Client extends Thread {
         }
         Socket site;
         try {
-//            serverSocket = new ServerSocket(0);
-            serverSocket = new ServerSocket();
-//            port = serverSocket.getLocalPort();
+            serverSocket = new ServerSocket(0);
+ //           serverSocket = new ServerSocket(port);
+            port = serverSocket.getLocalPort();
             site = new Socket(ipList[leader], SITE_PORT);
             ObjectOutputStream outputStream = new ObjectOutputStream(site.getOutputStream());
             // send client's public ip and port
@@ -83,8 +83,8 @@ public class Client extends Thread {
         Socket site = null;
         try {
             ObjectInputStream inputStream;
-            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), port));
-            serverSocket.setSoTimeout(10000);
+//            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), port));
+            serverSocket.setSoTimeout(20000);
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
             Map<Integer, PaxosObj> response = (HashMap<Integer, PaxosObj>) inputStream.readObject();
@@ -109,7 +109,7 @@ public class Client extends Thread {
                 }
             }
         } catch (java.net.SocketTimeoutException e) {
-            System.out.println("Failure: site took too long to respond. Retry posting message.");
+            System.out.println("Failure: site took too long to respond. Retry command again.");
             // pick random site id as the leader for next request
             Random random = new Random();
             int temp = leader;
@@ -149,17 +149,17 @@ public class Client extends Thread {
     }
     
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java Client [PORT]");
-            return;
-        } else {
-            try {
-                port = Integer.parseInt(args[0]);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                return;
-            }
-        }
+//        if (args.length != 1) {
+//            System.out.println("Usage: java Client [PORT]");
+//            return;
+//        } else {
+//            try {
+//                port = Integer.parseInt(args[0]);
+//            } catch (NumberFormatException e) {
+//                e.printStackTrace();
+//                return;
+//            }
+//        }
         Client client = new Client();
         client.start();
         try {
