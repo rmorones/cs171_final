@@ -120,7 +120,9 @@ public class Client extends Thread {
             e.printStackTrace();
         } finally {
             try {
-                site.close();
+                if(site != null) {
+                    site.close();
+                }
                 serverSocket.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
