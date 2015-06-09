@@ -65,7 +65,6 @@ public class Client extends Thread {
         Socket site;
         try {
             serverSocket = new ServerSocket(0);
- //           serverSocket = new ServerSocket(port);
             port = serverSocket.getLocalPort();
             site = new Socket(ipList[leader], SITE_PORT);
             ObjectOutputStream outputStream = new ObjectOutputStream(site.getOutputStream());
@@ -83,8 +82,7 @@ public class Client extends Thread {
         Socket site = null;
         try {
             ObjectInputStream inputStream;
-//            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostAddress(), port));
-            serverSocket.setSoTimeout(20000);
+            serverSocket.setSoTimeout(7000);
             site = serverSocket.accept();
             inputStream = new ObjectInputStream(site.getInputStream());
             Map<Integer, PaxosObj> response = (HashMap<Integer, PaxosObj>) inputStream.readObject();
